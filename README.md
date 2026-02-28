@@ -9,24 +9,52 @@ An MCP (Model Context Protocol) server that connects Claude to the [Heartland Re
 ### Prerequisites
 
 - Node.js 18+
-- A Heartland Retail API token
-- Claude Code CLI
+- A Heartland Retail API token ([how to get one](https://dev.retail.heartland.us/#authentication))
+- Claude Code CLI (`npm install -g @anthropic-ai/claude-code`)
 
-### Install & Build
+### Step 1 — Get a Heartland API Token
+
+1. Log in to your Heartland Retail dashboard
+2. Click your name in the top right → **My Account**
+3. Click **API** to open the API Tokens page
+4. Click **Generate new token**, enter a description, then click **Generate Token**
+5. Copy the token immediately — it won't be shown again
+
+Full details: https://dev.retail.heartland.us/#authentication
+
+### Step 2 — Install & Build
 
 ```bash
-cd /home/heman/git/HeartlandMCP
+git clone https://github.com/bamherndon/HeartlandMCP.git
+cd HeartlandMCP
 npm install
 npm run build
 ```
 
-### Register with Claude Code
+### Step 3 — Register with Claude Code
+
+Run this command once to register the server. Replace `your_token` and `yourstore` with your actual values:
 
 ```bash
-claude mcp add heartland-retail --transport stdio --scope user -e HEARTLAND_API_TOKEN=your_token -e HEARTLAND_BASE_URL=https://yourstore.retail.heartland.us -- node /home/heman/git/HeartlandMCP/dist/index.js
+claude mcp add heartland-retail \
+  --transport stdio \
+  --scope user \
+  -e HEARTLAND_API_TOKEN=your_token \
+  -e HEARTLAND_BASE_URL=https://yourstore.retail.heartland.us \
+  -- node /path/to/HeartlandMCP/dist/index.js
 ```
 
-Replace `your_token` and `yourstore` with your actual credentials. Run `/mcp` in a Claude Code session to confirm the server is connected.
+> **Note:** `--scope user` registers the server for all your Claude Code sessions. Use `--scope local` to limit it to the current project only.
+
+### Step 4 — Verify the Connection
+
+Start a new Claude Code session and run:
+
+```
+/mcp
+```
+
+You should see `heartland-retail` listed with a green connected status. You can now ask Claude questions about your Heartland data.
 
 ---
 
