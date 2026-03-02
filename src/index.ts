@@ -7,6 +7,9 @@ import { listMetrics } from "./tools/list-metrics.js";
 import { listGroups } from "./tools/list-groups.js";
 import { handleVendorItemCounts } from "./tools/vendor-item-counts.js";
 import { handleGetVendors } from "./tools/get-vendors.js";
+import { handleVendorSales } from "./tools/vendor-sales.js";
+import { handleItemHistory } from "./tools/item-history.js";
+import { handleItemSalesVelocity } from "./tools/item-sales-velocity.js";
 
 // Warn if env vars are missing — static tools still work without them
 if (!process.env.HEARTLAND_API_TOKEN) {
@@ -86,6 +89,50 @@ server.tool(
   },
   async (input) => {
     return handleVendorItemCounts(input);
+  }
+);
+
+server.tool(
+  "get_vendor_sales",
+  "Get items sold by a specific vendor within a date range, grouped by location, vendor, item ID, and description. Returns qty sold, total cost, open PO qty, on-hand qty, and last sold date.",
+  {
+    vendor_id: z.string().describe('Required. The primary vendor ID to filter by, e.g. "100026".'),
+    start_date: z.string().optional().describe("Optional. Start date in ISO 8601 format (YYYY-MM-DD)."),
+    end_date: z.string().optional().describe("Optional. End date in ISO 8601 format (YYYY-MM-DD). Defaults to today."),
+  },
+  async (input) => {
+    return handleVendorSales(input);
+  }
+);
+
+server.tool(
+  "get_item_history",
+  "Get the inventory history of a specific item by querying both Inventory Transactions (all qty changes) and Inventory Transfers (movements between locations). Accepts either the internal item_id or the public_id (SKU). Optionally filter by date range.",
+  {
+    item_id: z.string().optional().describe("The internal Heartland item ID. Either item_id or public_id is required."),
+    public_id: z.string().optional().describe("The item's public identifier (SKU/barcode). Used to look up the internal item_id. Either item_id or public_id is required."),
+    start_date: z.string().optional().describe("Optional. Filter records on or after this date (YYYY-MM-DD)."),
+    end_date: z.string().optional().describe("Optional. Filter records on or before this date (YYYY-MM-DD)."),
+    per_page: z.number().int().min(1).max(200).optional().describe("Optional. Number of transaction records to return (default 50, max 200)."),
+  },
+  async (input) => {
+    return handleItemHistory(input);
+  }
+);
+
+server.tool(
+  "get_item_sales_velocity",
+  "Calculate how many units are sold per month, broken down by item. Supply a vendor_id to get velocity for every item belonging to that vendor, or supply item_id/public_id for a single item. Returns per-item averages and monthly totals plus the full raw detail rows.",
+  {
+    vendor_id: z.string().optional().describe("Optional. Primary vendor ID — returns sales velocity for all items belonging to this vendor."),
+    item_id: z.string().optional().describe("Optional. Internal Heartland item ID for a single-item query."),
+    public_id: z.string().optional().describe("Optional. Item public identifier (SKU/barcode) for a single-item query."),
+    start_date: z.string().optional().describe("Optional. Start of date range (YYYY-MM-DD). Defaults to one year ago."),
+    end_date: z.string().optional().describe("Optional. End of date range (YYYY-MM-DD). Defaults to today."),
+    group_by_location: z.boolean().optional().describe("Optional. When true, break down monthly sales by location in addition to month. Default false."),
+  },
+  async (input) => {
+    return handleItemSalesVelocity(input);
   }
 );
 

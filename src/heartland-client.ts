@@ -62,15 +62,15 @@ export async function runReport(input: RunReportInput): Promise<ReportResponse> 
   }
   if (input.groups) {
     for (const group of input.groups) {
-      params.append("groups[]", group);
+      params.append("group[]", group);
     }
   }
   if (input.start_date) params.append("start_date", input.start_date);
   if (input.end_date) params.append("end_date", input.end_date);
   if (input.subtotal !== undefined) params.append("subtotal", String(input.subtotal));
-  if (input.sales_filters) params.append("sales_filters", input.sales_filters);
-  if (input.item_filters) params.append("item_filters", input.item_filters);
-  if (input.location_filters) params.append("location_filters", input.location_filters);
+  if (input.sales_filters) params.append("sale.filters", input.sales_filters);
+  if (input.item_filters) params.append("item.filters", input.item_filters);
+  if (input.location_filters) params.append("location.filters", input.location_filters);
 
   return callAnalyzerApi(params);
 }

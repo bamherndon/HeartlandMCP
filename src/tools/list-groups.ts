@@ -40,7 +40,7 @@ export function listGroups(): string {
       dimensions: [
         { name: "date.date", description: "Individual date (YYYY-MM-DD)" },
         { name: "date.week", description: "Week number" },
-        { name: "date.month", description: "Month (YYYY-MM)" },
+        { name: "date.month_of_year", description: "Month of year (1-12)" },
         { name: "date.quarter", description: "Quarter (YYYY-Q#)" },
         { name: "date.year", description: "Year" },
         { name: "date.day_of_week", description: "Day of week (0=Sunday)" },
