@@ -90,6 +90,61 @@ Returns ending inventory quantity owned, grouped by location, vendor, item ID, a
 
 ---
 
+### `get_vendor_sales`
+Returns items sold by a specific vendor within a date range, grouped by location, vendor, item ID, and description.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `vendor_id` | Yes | Vendor's numeric ID (use `get_vendors` to look it up). |
+| `start_date` | No | Start date in `YYYY-MM-DD` format. |
+| `end_date` | No | End date in `YYYY-MM-DD` format. Defaults to today. |
+
+**Returns:** qty sold, total cost, open PO qty, on-hand qty, last sold date — per item per location.
+
+**Example prompts:**
+- "What did vendor 100026 sell last month?"
+- "Show me sales from Columbia Sportswear for Q1 2026"
+
+---
+
+### `get_item_history`
+Returns the full inventory history for a single item — all quantity changes (transactions) and transfers between locations.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `item_id` | One of | Internal Heartland item ID. |
+| `public_id` | One of | Item SKU or barcode (looked up automatically). |
+| `start_date` | No | Filter on or after this date (`YYYY-MM-DD`). |
+| `end_date` | No | Filter on or before this date (`YYYY-MM-DD`). |
+| `per_page` | No | Number of transaction records to return (default 50, max 200). |
+
+**Example prompts:**
+- "Show me the inventory history for SKU ABC123"
+- "What happened to item 987654 in January?"
+
+---
+
+### `get_item_sales_velocity`
+Calculates units sold per month, broken down by item. Returns per-item averages and monthly totals.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `vendor_id` | One of | Returns velocity for all items from this vendor. |
+| `item_id` | One of | Internal Heartland item ID for a single item. |
+| `public_id` | One of | Item SKU/barcode for a single item. |
+| `start_date` | No | Start of date range (`YYYY-MM-DD`). Defaults to one year ago. |
+| `end_date` | No | End of date range (`YYYY-MM-DD`). Defaults to today. |
+| `group_by_location` | No | Break down monthly sales by location. Default `false`. |
+
+**Returns:** avg qty/month, avg net sales/month, monthly breakdown — per item and overall.
+
+**Example prompts:**
+- "What's the sales velocity for vendor 100026 over the past year?"
+- "How fast is SKU ABC123 selling?"
+- "Show monthly sales by location for item 987654"
+
+---
+
 ### `run_report`
 Run a flexible reporting analyzer query against any combination of metrics, groupings, and date ranges.
 
@@ -135,7 +190,7 @@ Returns all available grouping dimensions to use in `run_report`.
 - `item.*` — description, SKU, UPC, department, class, subclass, vendor, season, style, custom fields
 - `customer.*` — name, email, city, state, zip, customer type
 - `location.*` — name, code
-- `date.*` — date, week, month, quarter, year, day of week
+- `date.*` — date, week, month_of_year, quarter, year, day of week
 - `time.*` — hour
 - `payment.*` — payment type, tender
 
@@ -158,6 +213,15 @@ Returns all available grouping dimensions to use in `run_report`.
 
 **Daily sales trend:**
 > "What were our net sales by day for the past 30 days?"
+
+**Vendor sell-through:**
+> "Find the vendor ID for Columbia Sportswear, then show me what they sold last quarter and how many units we still have on hand"
+
+**Item velocity and reorder planning:**
+> "What's the sales velocity for vendor 100026 over the past year? Which items are selling fastest?"
+
+**Item audit:**
+> "Show me the full inventory history for SKU ABC123 — all transactions and transfers"
 
 ---
 
