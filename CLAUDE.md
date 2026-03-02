@@ -1,5 +1,10 @@
 # HeartlandMCP
 
+## Documentation Maintenance
+After any code change, always update both files before committing:
+- **CLAUDE.md** — keep the Tools section and API conventions accurate and concise
+- **README.md** — keep the Available Tools section in sync (parameters, descriptions, example prompts); update example workflows if relevant
+
 ## API Documentation
 Heartland Retail API docs: https://dev.retail.heartland.us/
 
