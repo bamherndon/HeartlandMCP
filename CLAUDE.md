@@ -34,3 +34,9 @@ Inventory history for a single item. Accepts `item_id` or `public_id` (SKU — r
 
 ### get_item_sales_velocity (item-sales-velocity.ts)
 Monthly sales velocity per item. Accepts `vendor_id`, `item_id`, or `public_id`. Uses analyzer with groups: `location.name`, `date.month_of_year`, `item.public_id`, `item.description`. Computes per-item and overall averages (avg qty/month, avg net sales/month) from the raw rows.
+
+### get_inventory_by_vendor (inventory-by-vendor.ts)
+Ending inventory as of a given date, grouped by `location.name` and `vendor.name`. Only sets `end_date`. Metrics: `ending_inventory.qty_owned`, `ending_inventory.cost_owned`, `ending_inventory.price_owned`.
+
+### get_sales_grouped_by_vendor (sales-grouped-by-vendor.ts)
+Net sales and net qty sold for a date range, grouped by `location.name` and `vendor.name`. Metrics: `source_sales.net_sales`, `source_sales.net_qty_sold`. No vendor filter — returns all vendors.

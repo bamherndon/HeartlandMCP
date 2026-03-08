@@ -145,6 +145,34 @@ Calculates units sold per month, broken down by item. Returns per-item averages 
 
 ---
 
+### `get_inventory_by_vendor`
+Returns ending inventory qty, cost, and retail price grouped by location and vendor as of a given date.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `date` | No | As-of date in `YYYY-MM-DD` format. Defaults to today. |
+
+**Example prompts:**
+- "Show me inventory levels by vendor as of today"
+- "What inventory did each vendor have on February 28th?"
+
+---
+
+### `get_sales_grouped_by_vendor`
+Returns net sales and net qty sold grouped by location and vendor for a given date range.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `start_date` | No | Start date in `YYYY-MM-DD` format. |
+| `end_date` | No | End date in `YYYY-MM-DD` format. Defaults to today. |
+
+**Example prompts:**
+- "Show me sales by vendor for March 2026"
+- "What did each vendor sell last week?"
+- "Give me a vendor sales summary for Q1 2026"
+
+---
+
 ### `run_report`
 Run a flexible reporting analyzer query against any combination of metrics, groupings, and date ranges.
 

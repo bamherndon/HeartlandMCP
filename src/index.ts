@@ -10,6 +10,8 @@ import { handleGetVendors } from "./tools/get-vendors.js";
 import { handleVendorSales } from "./tools/vendor-sales.js";
 import { handleItemHistory } from "./tools/item-history.js";
 import { handleItemSalesVelocity } from "./tools/item-sales-velocity.js";
+import { handleSalesGroupedByVendor } from "./tools/sales-grouped-by-vendor.js";
+import { handleInventoryByVendor } from "./tools/inventory-by-vendor.js";
 
 // Warn if env vars are missing — static tools still work without them
 if (!process.env.HEARTLAND_API_TOKEN) {
@@ -133,6 +135,29 @@ server.tool(
   },
   async (input) => {
     return handleItemSalesVelocity(input);
+  }
+);
+
+server.tool(
+  "get_sales_grouped_by_vendor",
+  "Get net sales and net qty sold grouped by location and vendor for a given date range.",
+  {
+    start_date: z.string().optional().describe("Optional. Start date in ISO 8601 format (YYYY-MM-DD)."),
+    end_date: z.string().optional().describe("Optional. End date in ISO 8601 format (YYYY-MM-DD). Defaults to today."),
+  },
+  async (input) => {
+    return handleSalesGroupedByVendor(input);
+  }
+);
+
+server.tool(
+  "get_inventory_by_vendor",
+  "Get ending inventory levels (qty, cost, and retail price) grouped by location and vendor as of a given date. Defaults to today.",
+  {
+    date: z.string().optional().describe("Optional. As-of date in YYYY-MM-DD format. Defaults to today."),
+  },
+  async (input) => {
+    return handleInventoryByVendor(input);
   }
 );
 
