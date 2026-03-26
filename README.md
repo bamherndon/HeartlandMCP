@@ -173,6 +173,23 @@ Returns net sales and net qty sold grouped by location and vendor for a given da
 
 ---
 
+### `create_inventory_adjustment`
+Create an inventory adjustment set and add item lines to it. Used to record quantity corrections at a specific location.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `location_id` | Yes | The location ID where the adjustment applies. |
+| `adjustment_reason_id` | Yes | The ID of the adjustment reason (e.g. shrinkage, count correction). |
+| `lines` | Yes | Array of lines to add. Each line requires `item_id`, `qty` (positive to add, negative to remove), and `unit_cost`. |
+
+**Returns:** The created adjustment set ID, the full adjustment set response, and the result of each added line.
+
+**Example prompts:**
+- "Create an inventory adjustment at location 5 with reason 3, adding 10 units of item 12345 at cost 9.99"
+- "Adjust down 2 units of item 99887 at location 1 for shrinkage (reason 2), unit cost 5.00"
+
+---
+
 ### `run_report`
 Run a flexible reporting analyzer query against any combination of metrics, groupings, and date ranges.
 

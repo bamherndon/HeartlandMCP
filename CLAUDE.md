@@ -40,3 +40,8 @@ Ending inventory as of a given date, grouped by `location.name` and `vendor.name
 
 ### get_sales_grouped_by_vendor (sales-grouped-by-vendor.ts)
 Net sales and net qty sold for a date range, grouped by `location.name` and `vendor.name`. Metrics: `source_sales.net_sales`, `source_sales.net_qty_sold`. No vendor filter — returns all vendors.
+
+### create_inventory_adjustment (create-inventory-adjustment.ts)
+Creates an inventory adjustment set and adds item lines to it. Uses `callApiPost` (POST with JSON body).
+- Step 1: `POST /api/inventory/adjustment_sets` with `location_id` and `adjustment_reason_id`. Extracts adjustment set ID from response body `id` field or `Location` header.
+- Step 2: `POST /api/inventory/adjustment_sets/{id}/lines` for each line with `item_id`, `qty`, `unit_cost`. Lines are POSTed in parallel via `Promise.all`.

@@ -50,6 +50,34 @@ export async function callApi(path: string, params: URLSearchParams): Promise<un
   return JSON.parse(rawBody);
 }
 
+export async function callApiPost(path: string, body: Record<string, unknown>): Promise<{ data: unknown; locationHeader: string | null }> {
+  const { token, baseUrl } = getCredentials();
+  const url = `${baseUrl}${path}`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const rawBody = await response.text();
+
+  if (!response.ok) {
+    throw new HeartlandApiError(
+      `Heartland API error: ${response.status} ${response.statusText}`,
+      response.status,
+      rawBody
+    );
+  }
+
+  const data = rawBody.length > 0 ? JSON.parse(rawBody) : null;
+  return { data, locationHeader: response.headers.get("Location") };
+}
+
 export async function callAnalyzerApi(params: URLSearchParams): Promise<ReportResponse> {
   return callApi("/api/reporting/analyzer", params) as Promise<ReportResponse>;
 }

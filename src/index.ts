@@ -12,6 +12,7 @@ import { handleItemHistory } from "./tools/item-history.js";
 import { handleItemSalesVelocity } from "./tools/item-sales-velocity.js";
 import { handleSalesGroupedByVendor } from "./tools/sales-grouped-by-vendor.js";
 import { handleInventoryByVendor } from "./tools/inventory-by-vendor.js";
+import { handleCreateInventoryAdjustment } from "./tools/create-inventory-adjustment.js";
 
 // Warn if env vars are missing — static tools still work without them
 if (!process.env.HEARTLAND_API_TOKEN) {
@@ -158,6 +159,25 @@ server.tool(
   },
   async (input) => {
     return handleInventoryByVendor(input);
+  }
+);
+
+server.tool(
+  "create_inventory_adjustment",
+  "Create an inventory adjustment set and add item lines to it. Used to record quantity corrections for items at a specific location. Each line specifies an item, quantity adjusted, and unit cost.",
+  {
+    location_id: z.string().describe("Required. The location ID where the adjustment applies."),
+    adjustment_reason_id: z.string().describe("Required. The ID of the adjustment reason (e.g. shrinkage, count correction)."),
+    lines: z.array(
+      z.object({
+        item_id: z.string().describe("The internal Heartland item ID."),
+        qty: z.number().int().describe("Quantity being adjusted (positive to add, negative to remove)."),
+        unit_cost: z.number().describe("Cost per unit for this adjustment."),
+      })
+    ).min(1).describe("Required. One or more item lines to add to the adjustment."),
+  },
+  async (input) => {
+    return handleCreateInventoryAdjustment(input);
   }
 );
 
