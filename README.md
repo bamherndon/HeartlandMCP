@@ -173,6 +173,33 @@ Returns net sales and net qty sold grouped by location and vendor for a given da
 
 ---
 
+### `list_locations`
+List all store locations in Heartland Retail. Use this to find a location's ID before creating inventory adjustments.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `per_page` | No | Results to return (default 50, max 200). |
+
+**Example prompts:**
+- "List all locations"
+- "What location ID is the downtown store?"
+
+---
+
+### `get_item`
+Look up a specific inventory item by its internal ID or SKU. Returns full item details including description, pricing, vendor, and inventory fields.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `item_id` | One of | Internal Heartland item ID. |
+| `public_id` | One of | Item SKU or barcode. |
+
+**Example prompts:**
+- "Look up item 12345"
+- "Show me the details for SKU ABC123"
+
+---
+
 ### `create_inventory_adjustment`
 Create an inventory adjustment set and add item lines to it. Used to record quantity corrections at a specific location.
 

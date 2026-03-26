@@ -50,20 +50,19 @@ export async function handleCreateInventoryAdjustment(input: {
       };
     }
 
-    // Step 2: Add each line to the adjustment set
-    const lineResults = await Promise.all(
-      input.lines.map(async (line) => {
-        const { data } = await callApiPost(
-          `/api/inventory/adjustment_sets/${adjustmentSetId}/lines`,
-          {
-            item_id: line.item_id,
-            qty: line.qty,
-            unit_cost: line.unit_cost,
-          }
-        );
-        return data;
-      })
-    );
+    // Step 2: Add each line sequentially to avoid rate limiting
+    const lineResults: unknown[] = [];
+    for (const line of input.lines) {
+      const { data } = await callApiPost(
+        `/api/inventory/adjustment_sets/${adjustmentSetId}/lines`,
+        {
+          item_id: line.item_id,
+          qty: line.qty,
+          unit_cost: line.unit_cost,
+        }
+      );
+      lineResults.push(data);
+    }
 
     const output = {
       adjustment_set_id: adjustmentSetId,

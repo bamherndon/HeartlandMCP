@@ -13,6 +13,8 @@ import { handleItemSalesVelocity } from "./tools/item-sales-velocity.js";
 import { handleSalesGroupedByVendor } from "./tools/sales-grouped-by-vendor.js";
 import { handleInventoryByVendor } from "./tools/inventory-by-vendor.js";
 import { handleCreateInventoryAdjustment } from "./tools/create-inventory-adjustment.js";
+import { handleListLocations } from "./tools/list-locations.js";
+import { handleGetItem } from "./tools/get-item.js";
 
 // Warn if env vars are missing — static tools still work without them
 if (!process.env.HEARTLAND_API_TOKEN) {
@@ -178,6 +180,29 @@ server.tool(
   },
   async (input) => {
     return handleCreateInventoryAdjustment(input);
+  }
+);
+
+server.tool(
+  "list_locations",
+  "List all Heartland Retail locations. Returns location id, name, code, and status. Use this to look up a location's id before using it in tools like create_inventory_adjustment.",
+  {
+    per_page: z.number().int().min(1).max(200).optional().describe("Optional. Number of results to return (default 50, max 200)."),
+  },
+  async (input) => {
+    return handleListLocations(input);
+  }
+);
+
+server.tool(
+  "get_item",
+  "Look up a specific inventory item by its internal item_id or public_id (SKU). Returns full item details including description, pricing, vendor, and inventory fields.",
+  {
+    item_id: z.string().optional().describe("The internal Heartland item ID. Either item_id or public_id is required."),
+    public_id: z.string().optional().describe("The item's public identifier (SKU/barcode). Either item_id or public_id is required."),
+  },
+  async (input) => {
+    return handleGetItem(input);
   }
 );
 
