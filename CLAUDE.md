@@ -50,4 +50,4 @@ Fetches a single item by `item_id` (GET `/api/items/{id}`) or by `public_id` (GE
 ### create_inventory_adjustment (create-inventory-adjustment.ts)
 Creates an inventory adjustment set and adds item lines to it. Uses `callApiPost` (POST with JSON body).
 - Step 1: `POST /api/inventory/adjustment_sets` with `location_id` and `adjustment_reason_id`. Extracts adjustment set ID from response body `id` field or `Location` header.
-- Step 2: `POST /api/inventory/adjustment_sets/{id}/lines` for each line with `item_id`, `qty`, `unit_cost`. Lines are POSTed in parallel via `Promise.all`.
+- Step 2: `POST /api/inventory/adjustment_sets/{id}/lines` for each line with `item_id`, `qty`, `unit_cost`. Lines are POSTed sequentially.
