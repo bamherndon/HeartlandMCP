@@ -15,6 +15,9 @@ import { handleInventoryByVendor } from "./tools/inventory-by-vendor.js";
 import { handleCreateInventoryAdjustment } from "./tools/create-inventory-adjustment.js";
 import { handleListLocations } from "./tools/list-locations.js";
 import { handleGetItem } from "./tools/get-item.js";
+import { handleUpdateItem } from "./tools/update-item.js";
+import { handleInventoryByDepartment } from "./tools/inventory-by-department.js";
+import { handleSalesByDepartment } from "./tools/sales-by-department.js";
 
 // Warn if env vars are missing — static tools still work without them
 if (!process.env.HEARTLAND_API_TOKEN) {
@@ -203,6 +206,49 @@ server.tool(
   },
   async (input) => {
     return handleGetItem(input);
+  }
+);
+
+const itemWriteParams = {
+  item_id: z.string().optional().describe("The internal Heartland item ID. Either item_id or public_id is required."),
+  public_id: z.string().optional().describe("The item's public identifier (SKU/barcode). Either item_id or public_id is required."),
+  price: z.number().optional().describe("Optional. New retail price for the item."),
+  cost: z.number().optional().describe("Optional. New cost for the item."),
+  description: z.string().optional().describe("Optional. New description for the item."),
+  custom: z.union([z.record(z.string(), z.string()), z.string()]).optional().describe("Optional. Custom field key/value pairs to set (e.g. { redtagged: 'Yes' }). Omitted keys are left unchanged."),
+};
+
+server.tool(
+  "get_sales_grouped_by_department",
+  "Get total cost and net qty sold grouped by location and department for a date range. Excludes the Minifig Maker sub-department. Defaults to location 100005, start date 6 months ago, and end date today.",
+  {
+    start_date: z.string().optional().describe("Optional. Start date in YYYY-MM-DD format. Defaults to 6 months ago."),
+    end_date: z.string().optional().describe("Optional. End date in YYYY-MM-DD format. Defaults to today."),
+    location_id: z.string().optional().describe("Optional. Location ID to filter by. Defaults to \"100005\"."),
+  },
+  async (input) => {
+    return handleSalesByDepartment(input);
+  }
+);
+
+server.tool(
+  "get_inventory_by_department",
+  "Get ending inventory qty and cost grouped by location and department as of a given date. Excludes the Minifig Maker sub-department. Defaults to location 100005 and today's date.",
+  {
+    end_date: z.string().optional().describe("Optional. As-of date in YYYY-MM-DD format. Defaults to today."),
+    location_id: z.string().optional().describe("Optional. Location ID to filter by. Defaults to \"100005\"."),
+  },
+  async (input) => {
+    return handleInventoryByDepartment(input);
+  }
+);
+
+server.tool(
+  "update_item",
+  "Update an inventory item using HTTP PUT. Supports partial updates — supply item_id or public_id plus only the fields you want to change: price, cost, description, and/or custom fields. Fields you omit are left unchanged.",
+  itemWriteParams,
+  async (input) => {
+    return handleUpdateItem(input);
   }
 );
 

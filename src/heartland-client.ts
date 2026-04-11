@@ -78,6 +78,33 @@ export async function callApiPost(path: string, body: Record<string, unknown>): 
   return { data, locationHeader: response.headers.get("Location") };
 }
 
+export async function callApiWrite(method: "PUT" | "PATCH", path: string, body: Record<string, unknown>): Promise<unknown> {
+  const { token, baseUrl } = getCredentials();
+  const url = `${baseUrl}${path}`;
+
+  const response = await fetch(url, {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const rawBody = await response.text();
+
+  if (!response.ok) {
+    throw new HeartlandApiError(
+      `Heartland API error: ${response.status} ${response.statusText}`,
+      response.status,
+      rawBody
+    );
+  }
+
+  return rawBody.length > 0 ? JSON.parse(rawBody) : null;
+}
+
 export async function callAnalyzerApi(params: URLSearchParams): Promise<ReportResponse> {
   return callApi("/api/reporting/analyzer", params) as Promise<ReportResponse>;
 }

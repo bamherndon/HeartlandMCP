@@ -61,7 +61,7 @@ You should see `heartland-retail` listed with a green connected status. You can 
 ## Available Tools
 
 ### `get_vendors`
-Search for vendors by name. Use this to find a vendor's numeric ID before running inventory reports.
+Search for vendors by name. Use this to find a vendor's numeric ID before running inventory or sales reports.
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
@@ -71,7 +71,6 @@ Search for vendors by name. Use this to find a vendor's numeric ID before runnin
 **Example prompts:**
 - "Find vendors named Levi"
 - "List all vendors"
-- "Search for vendors matching Nike and show 100 results"
 
 ---
 
@@ -86,7 +85,6 @@ Returns ending inventory quantity owned, grouped by location, vendor, item ID, a
 **Example prompts:**
 - "How many units do we have from vendor 100026?"
 - "Show item counts for vendor 100026 as of January 31st"
-- "Find the vendor ID for Levi's, then show their item counts"
 
 ---
 
@@ -141,7 +139,35 @@ Calculates units sold per month, broken down by item. Returns per-item averages 
 **Example prompts:**
 - "What's the sales velocity for vendor 100026 over the past year?"
 - "How fast is SKU ABC123 selling?"
-- "Show monthly sales by location for item 987654"
+
+---
+
+### `get_sales_grouped_by_vendor`
+Returns net sales, net qty sold, and total cost grouped by location and vendor for a given date range.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `start_date` | No | Start date in `YYYY-MM-DD` format. |
+| `end_date` | No | End date in `YYYY-MM-DD` format. Defaults to today. |
+
+**Example prompts:**
+- "Show me sales by vendor for March 2026"
+- "Give me a vendor sales summary for Q1 2026"
+
+---
+
+### `get_sales_grouped_by_department`
+Returns total cost and net qty sold grouped by location and department for a date range. Excludes the Minifig Maker sub-department.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `start_date` | No | Start date in `YYYY-MM-DD` format. Defaults to 6 months ago. |
+| `end_date` | No | End date in `YYYY-MM-DD` format. Defaults to today. |
+| `location_id` | No | Location ID to filter by. Defaults to `100005`. |
+
+**Example prompts:**
+- "Show me sales by department for the last 6 months"
+- "What department had the most units sold this year?"
 
 ---
 
@@ -158,18 +184,17 @@ Returns ending inventory qty, cost, and retail price grouped by location and ven
 
 ---
 
-### `get_sales_grouped_by_vendor`
-Returns net sales and net qty sold grouped by location and vendor for a given date range.
+### `get_inventory_by_department`
+Returns ending inventory qty and cost grouped by location and department as of a given date. Excludes the Minifig Maker sub-department.
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
-| `start_date` | No | Start date in `YYYY-MM-DD` format. |
-| `end_date` | No | End date in `YYYY-MM-DD` format. Defaults to today. |
+| `end_date` | No | As-of date in `YYYY-MM-DD` format. Defaults to today. |
+| `location_id` | No | Location ID to filter by. Defaults to `100005`. |
 
 **Example prompts:**
-- "Show me sales by vendor for March 2026"
-- "What did each vendor sell last week?"
-- "Give me a vendor sales summary for Q1 2026"
+- "Show me ending inventory by department as of today"
+- "What's the inventory cost by department?"
 
 ---
 
@@ -197,6 +222,25 @@ Look up a specific inventory item by its internal ID or SKU. Returns full item d
 **Example prompts:**
 - "Look up item 12345"
 - "Show me the details for SKU ABC123"
+
+---
+
+### `update_item`
+Update an inventory item via HTTP PUT. Supports partial updates — only the fields you provide are sent, so omitted fields are left unchanged.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `item_id` | One of | Internal Heartland item ID. |
+| `public_id` | One of | Item SKU or barcode (looked up automatically). |
+| `price` | No | New retail price. |
+| `cost` | No | New cost. |
+| `description` | No | New item description. |
+| `custom` | No | Object of custom field key/value pairs, e.g. `{ "redtagged": "Yes" }`. |
+
+**Example prompts:**
+- "Set the price of item 12345 to 19.99"
+- "Mark SKU 60170 as red tagged"
+- "Update the description and cost for item 104273"
 
 ---
 
@@ -233,7 +277,6 @@ Run a flexible reporting analyzer query against any combination of metrics, grou
 
 **Example prompts:**
 - "Show me net sales by location for last month"
-- "What were total transactions and gross sales by day this week?"
 - "Run a report on gross margin and cost grouped by vendor for Q1"
 - "Show ending inventory quantity and retail value by department"
 
@@ -280,8 +323,8 @@ Returns all available grouping dimensions to use in `run_report`.
 **Vendor inventory lookup:**
 > "Find the vendor ID for 'Columbia Sportswear', then show me how many units we have from them as of today"
 
-**Slow-moving inventory:**
-> "Run a report on ending inventory quantity grouped by department and vendor — I want to see what's sitting"
+**Department sell-through:**
+> "Show me sales by department for the last 6 months, then show ending inventory by department — which departments are sitting heavy?"
 
 **Daily sales trend:**
 > "What were our net sales by day for the past 30 days?"

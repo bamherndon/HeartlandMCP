@@ -15,17 +15,20 @@ Heartland Retail API docs: https://dev.retail.heartland.us/
 
 ## Tools
 
-### Analyzer (run_report)
+### run_report (run-report.ts)
 Calls the Heartland analyzer API. Filters are JSON-encoded strings passed as `sale.filters`, `item.filters`, `location.filters`.
 
-### get_vendors
-Search vendors by name. Returns id, name, code, status, contact info.
+### list_metrics / list_groups
+Static lookup tools. Return available metric and group dimension names for use in `run_report`.
 
-### get_vendor_item_counts
+### get_vendors (get-vendors.ts)
+Search vendors by name. GET `/api/vendors`. Returns id, name, code, status, contact info.
+
+### get_vendor_item_counts (vendor-item-counts.ts)
 Ending inventory qty owned by vendor, grouped by location/vendor/item. Uses `callAnalyzerApi`.
 
 ### get_vendor_sales (vendor-sales.ts)
-Items sold by a vendor in a date range. Filters by `primary_vendor_id` via `item.filters`. Groups by location, vendor, item public_id, item description. Metrics: total_cost, net_qty_sold, open PO qty, on-hand qty, last sold date.
+Items sold by a vendor in a date range. Filters by `primary_vendor_id` via `item.filters`. Groups by location, vendor, item public_id, item description. Metrics: `source_sales.total_cost`, `source_sales.net_qty_sold`, open PO qty, on-hand qty, last sold date. Sorted by vendor name desc.
 
 ### get_item_history (item-history.ts)
 Inventory history for a single item. Accepts `item_id` or `public_id` (SKU — resolved via `/api/items`). Fetches:
@@ -35,17 +38,26 @@ Inventory history for a single item. Accepts `item_id` or `public_id` (SKU — r
 ### get_item_sales_velocity (item-sales-velocity.ts)
 Monthly sales velocity per item. Accepts `vendor_id`, `item_id`, or `public_id`. Uses analyzer with groups: `location.name`, `date.month_of_year`, `item.public_id`, `item.description`. Computes per-item and overall averages (avg qty/month, avg net sales/month) from the raw rows.
 
+### get_sales_grouped_by_vendor (sales-grouped-by-vendor.ts)
+Net sales, net qty sold, and total cost for a date range, grouped by `location.name` and `vendor.name`. Metrics: `source_sales.net_sales`, `source_sales.net_qty_sold`, `source_sales.total_cost`. No vendor filter — returns all vendors.
+
+### get_sales_grouped_by_department (sales-by-department.ts)
+Net qty sold and total cost grouped by `location.name` and `item.custom@department` for a date range. Hardcoded item filter excludes `custom@sub_department` `"Minifig Maker"`. Default location: `100005`. `start_date` defaults to 6 months ago, `end_date` defaults to today. Metrics: `source_sales.total_cost`, `source_sales.net_qty_sold`.
+
 ### get_inventory_by_vendor (inventory-by-vendor.ts)
 Ending inventory as of a given date, grouped by `location.name` and `vendor.name`. Only sets `end_date`. Metrics: `ending_inventory.qty_owned`, `ending_inventory.cost_owned`, `ending_inventory.price_owned`.
 
-### get_sales_grouped_by_vendor (sales-grouped-by-vendor.ts)
-Net sales and net qty sold for a date range, grouped by `location.name` and `vendor.name`. Metrics: `source_sales.net_sales`, `source_sales.net_qty_sold`. No vendor filter — returns all vendors.
+### get_inventory_by_department (inventory-by-department.ts)
+Ending inventory qty and cost grouped by `location.name` and `item.custom@department` as of a given date. Hardcoded item filter excludes `custom@sub_department` `"Minifig Maker"`. Default location: `100005`. Only `end_date` (defaults to today) and `location_id` are exposed as parameters. Metrics: `ending_inventory.qty_owned`, `ending_inventory.cost_owned`.
 
 ### list_locations (list-locations.ts)
 Lists all locations. GET `/api/locations`. Returns id, name, code, status.
 
 ### get_item (get-item.ts)
 Fetches a single item by `item_id` (GET `/api/items/{id}`) or by `public_id` (GET `/api/items?~[public_id]=...`). Returns full item record.
+
+### update_item (update-item.ts)
+Updates an item via PUT `/api/items/{id}`. Supports partial updates — only the fields provided are sent; omitted fields are left unchanged. Accepts `item_id` or `public_id` (resolves to internal ID), plus optional `price`, `cost`, `description`, `custom` (key/value map). Uses `callApiWrite("PUT", ...)`.
 
 ### create_inventory_adjustment (create-inventory-adjustment.ts)
 Creates an inventory adjustment set and adds item lines to it. Uses `callApiPost` (POST with JSON body).
