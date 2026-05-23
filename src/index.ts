@@ -18,6 +18,8 @@ import { handleGetItem } from "./tools/get-item.js";
 import { handleUpdateItem } from "./tools/update-item.js";
 import { handleInventoryByDepartment } from "./tools/inventory-by-department.js";
 import { handleSalesByDepartment } from "./tools/sales-by-department.js";
+import { handleCreatePurchaseOrder } from "./tools/create-purchase-order.js";
+import { handleAddPurchaseOrderLines } from "./tools/add-purchase-order-lines.js";
 
 // Warn if env vars are missing — static tools still work without them
 if (!process.env.HEARTLAND_API_TOKEN) {
@@ -249,6 +251,49 @@ server.tool(
   itemWriteParams,
   async (input) => {
     return handleUpdateItem(input);
+  }
+);
+
+server.tool(
+  "create_purchase_order",
+  "Create a new purchase order for a vendor at a specific location. Optionally include line items to add in the same call. Each line is identified by public_id (SKU); if the item does not yet exist in Heartland it will be created automatically. Returns the new purchase order ID and any lines added.",
+  {
+    vendor_id: z.string().describe("Required. The vendor ID to create the purchase order for."),
+    location_id: z.string().describe("Required. The location ID where the PO will be received."),
+    start_shipments_at: z.string().optional().describe("Optional. Expected start of shipment window (YYYY-MM-DD). Defaults to today."),
+    end_shipments_at: z.string().optional().describe("Optional. Expected end of shipment window (YYYY-MM-DD). Defaults to 30 days from today."),
+    lines: z.array(
+      z.object({
+        public_id: z.string().describe("Required. The item's public identifier (SKU), e.g. \"SantokiKE237H\". Used to look up or create the item."),
+        qty: z.number().int().describe("Quantity to order."),
+        unit_cost: z.number().optional().describe("Optional. Cost per unit for this line."),
+        description: z.string().optional().describe("Optional. Item description — used when creating a new item."),
+        price: z.number().optional().describe("Optional. Retail price (MSRP) — used when creating a new item."),
+        upc: z.string().optional().describe("Optional. UPC/barcode — used when creating a new item."),
+        custom: z.record(z.string(), z.string()).optional().describe("Optional. Custom field key/value pairs — used when creating a new item (e.g. department, sub_department, bam_category)."),
+      })
+    ).optional().describe("Optional. Line items to add to the PO immediately after creation."),
+  },
+  async (input) => {
+    return handleCreatePurchaseOrder(input);
+  }
+);
+
+server.tool(
+  "add_purchase_order_lines",
+  "Add item lines to an existing purchase order. Use this to append more items to a PO that was already created. Lines are added sequentially.",
+  {
+    purchase_order_id: z.string().describe("Required. The ID of the existing purchase order."),
+    lines: z.array(
+      z.object({
+        item_id: z.string().describe("The internal Heartland item ID."),
+        qty: z.number().int().describe("Quantity to order."),
+        unit_cost: z.number().optional().describe("Optional. Cost per unit for this line."),
+      })
+    ).min(1).describe("Required. One or more item lines to add to the purchase order."),
+  },
+  async (input) => {
+    return handleAddPurchaseOrderLines(input);
   }
 );
 

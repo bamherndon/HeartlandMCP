@@ -26,10 +26,11 @@ function getCredentials(): { token: string; baseUrl: string } {
 
 export async function callApi(path: string, params: URLSearchParams): Promise<unknown> {
   const { token, baseUrl } = getCredentials();
-  const url = new URL(`${baseUrl}${path}`);
-  url.search = params.toString();
+  // Decode ~[] brackets so Heartland receives them literally (URLSearchParams encodes them)
+  const qs = params.toString().replace(/%7E/gi, "~").replace(/%5B/gi, "[").replace(/%5D/gi, "]");
+  const url = `${baseUrl}${path}${qs ? "?" + qs : ""}`;
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

@@ -244,6 +244,39 @@ Update an inventory item via HTTP PUT. Supports partial updates — only the fie
 
 ---
 
+### `create_purchase_order`
+Create a new purchase order for a vendor at a specific location. Optionally include line items in the same call.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `vendor_id` | Yes | Vendor ID to create the PO for (use `get_vendors` to look it up). |
+| `location_id` | Yes | Location ID where the PO will be received (use `list_locations` to look it up). |
+| `lines` | No | Array of line items to add. Each line requires `item_id` and `qty`; `unit_cost` is optional. |
+
+**Returns:** The new purchase order ID and any lines added.
+
+**Example prompts:**
+- "Create a purchase order for vendor 100026 at location 100005"
+- "Create a PO for vendor 100026 at location 100005 with 10 units of item 12345 at cost 9.99"
+
+---
+
+### `add_purchase_order_lines`
+Add item lines to an existing purchase order. Use this when you need to append more items to a PO that was already created.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `purchase_order_id` | Yes | The ID of the existing purchase order. |
+| `lines` | Yes | Array of lines to add. Each line requires `item_id` and `qty`; `unit_cost` is optional. |
+
+**Returns:** The purchase order ID and the result of each added line.
+
+**Example prompts:**
+- "Add 5 units of item 98765 to purchase order 1001"
+- "Add these three items to PO 1001: item 11111 (qty 2), item 22222 (qty 5 at cost 4.50), item 33333 (qty 10)"
+
+---
+
 ### `create_inventory_adjustment`
 Create an inventory adjustment set and add item lines to it. Used to record quantity corrections at a specific location.
 

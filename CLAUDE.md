@@ -50,6 +50,12 @@ Ending inventory as of a given date, grouped by `location.name` and `vendor.name
 ### get_inventory_by_department (inventory-by-department.ts)
 Ending inventory qty and cost grouped by `location.name` and `item.custom@department` as of a given date. Hardcoded item filter excludes `custom@sub_department` `"Minifig Maker"`. Default location: `100005`. Only `end_date` (defaults to today) and `location_id` are exposed as parameters. Metrics: `ending_inventory.qty_owned`, `ending_inventory.cost_owned`.
 
+### create_purchase_order (create-purchase-order.ts)
+Creates a purchase order and optionally adds lines. POST `/api/purchasing/purchase_order` with `vendor_id` and `location_id`. Extracts PO ID from response body `id` or `Location` header. Then POSTs each line to `/api/purchasing/purchase_order/{id}/lines` sequentially with `item_id`, `qty`, and optional `unit_cost`.
+
+### add_purchase_order_lines (add-purchase-order-lines.ts)
+Adds lines to an existing PO by `purchase_order_id`. POSTs each line sequentially to `/api/purchasing/purchase_order/{id}/lines` with `item_id`, `qty`, and optional `unit_cost`.
+
 ### list_locations (list-locations.ts)
 Lists all locations. GET `/api/locations`. Returns id, name, code, status.
 
